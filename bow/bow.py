@@ -47,7 +47,6 @@ if __name__ == '__main__':
         preprocess(embed=False)
     elif sys.argv[1] == '2':
         review_vectors = load_review_vectors(file_review_vectors)
-        print(review_vectors[0])
     else:
         print('Specify what to do')
 
