@@ -44,6 +44,9 @@ def review_to_vector(embeddings, path):
             tokens = line.split(' ')
 
             for token in tokens:
+                # Converts to lowercase.
+                token = token.lower()
+
                 if token in embeddings:
                     if vector.size == 0:
                         vector = np.array(embeddings[token])
@@ -85,14 +88,20 @@ def load_review_vectors(path):
     Loads review vectors from a file. Converts the actual vectors to numpy
     arrays for calculations later.
     """
-    # XXX Not sure yet if we should keep the python list structure with numpy
-    # arrays and integers, or if that too should be a numpy array.
-
     with open(path) as file:
         review_vectors = json.load(file)
 
-    for review in review_vectors:
-        review[0] = np.array(review[0])
+    reviews = np.zeros((len(review_vectors), len(review_vectors[0][0])))
+    targets = np.zeros(len(review_vectors))
 
-    return review_vectors
+    for i in range(len(review_vectors)):
+        # FIXME vector i == 4499 is emtpy.
+        if len(review_vectors[i][0]) < 25:
+            continue
+
+        reviews[i] = review_vectors[i][0]
+        targets[i] = review_vectors[i][1]
+
+    return reviews, targets
+
 
