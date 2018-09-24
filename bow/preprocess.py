@@ -44,6 +44,9 @@ def review_to_vector(embeddings, path):
             tokens = line.split(' ')
 
             for token in tokens:
+                # Converts to lowercase.
+                token = token.lower()
+
                 if token in embeddings:
                     if vector.size == 0:
                         vector = np.array(embeddings[token])
