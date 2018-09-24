@@ -93,6 +93,7 @@ def load_review_vectors(path):
 
     for i in range(len(review_vectors)):
         # FIXME vector i == 4499 is emtpy.
+        if len(review_vectors[i][0]) < 25:
             continue
 
         reviews[i] = review_vectors[i][0]
