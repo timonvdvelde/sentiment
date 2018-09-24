@@ -3,7 +3,7 @@
 import sys
 from preprocess import *
 
-path_data = '../dataset/train/'
+path_data = '../data/train/'
 path_pos = path_data + 'pos/'
 path_neg = path_data + 'neg/'
 
@@ -49,4 +49,3 @@ if __name__ == '__main__':
         reviews, targets = load_review_vectors(file_review_vectors)
     else:
         print('Specify what to do')
-
