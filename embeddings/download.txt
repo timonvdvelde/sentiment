@@ -1,0 +1,2 @@
+https://www.kaggle.com/jdpaletto/glove-global-vectors-for-word-representation/version/1#glove.twitter.27B.25d.txt
+
