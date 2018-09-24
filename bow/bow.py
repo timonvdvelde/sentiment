@@ -46,7 +46,7 @@ if __name__ == '__main__':
     elif sys.argv[1] == '1':
         preprocess(embed=False)
     elif sys.argv[1] == '2':
-        review_vectors = load_review_vectors(file_review_vectors)
+        reviews, targets = load_review_vectors(file_review_vectors)
     else:
         print('Specify what to do')
 
