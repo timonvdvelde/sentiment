@@ -9,7 +9,8 @@ import torch.optim as optim
 import model as md
 
 # Loading data
-
+reviews, targets = load_review_vectors(file_review_vectors)
+print(reviews.shape(), targets.shape())
 # Temporary lol
 v_dim = 25
 hidden_layers = [100]
