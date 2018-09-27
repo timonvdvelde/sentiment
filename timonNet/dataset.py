@@ -28,7 +28,7 @@ class ReviewDataset(Dataset):
         """
         vectors = []
 
-        with open(self.paths[idx]) as file:
+        with open(self.paths[idx], encoding='utf-8') as file:
             for line in file:
                 tokens = line.split(' ')
 

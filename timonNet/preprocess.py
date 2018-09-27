@@ -13,7 +13,7 @@ def embed_to_json(file_embed_raw, file_embed_json):
     """
     table = {}
 
-    with open(file_embed_raw) as file:
+    with open(file_embed_raw, encoding='utf-8') as file:
         for line in file:
             values = line.split()
             float_values = [float(val) for val in values[1:]]
@@ -27,7 +27,7 @@ def load_embed(file_embed_json):
     Loads a JSON file with embeddings and converts all the vectors to Numpy
     arrays for math purposes later on.
     """
-    with open(file_embed_json) as file:
+    with open(file_embed_json, encoding='utf-8') as file:
         embeddings = json.load(file)
 
     return embeddings
@@ -37,7 +37,7 @@ def store_json(data, filename):
     """
     Stores data as JSON.
     """
-    with open(filename, 'w') as file:
+    with open(filename, 'w', encoding='utf-8') as file:
         json.dump(data, file)
 
 

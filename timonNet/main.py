@@ -17,8 +17,10 @@ path_neg = path_data + 'neg/'
 path_embed = '../embeddings/'
 file_embed_raw = 'glove.twitter.27B.25d.txt'
 file_embed_json = 'glove.twitter.27B.25d.json'
+
 dimensions = 25
 batch_size = 50
+params_file = 'params'
 
 
 def get_dataset():
@@ -40,12 +42,28 @@ def get_dataset():
     return data
 
 
+def validate(validation_loader, net):
+    net.eval()
+
+    for vectors, targets in validation_loader:
+        logits = net(vectors)
+        loss = F.cross_entropy(logits, targets)
+
+    corrects = (torch.max(logits, 1)[1].view(targets.size()).data == targets.data).sum()
+    accuracy = 100.0 * corrects / len(vectors)
+
+    print('Validation')
+    print('Loss:', loss[0])
+    print('Accuracy:', accuracy[0])
+
+
 def train(train_loader, validation_loader, net):
     optimizer = Adadelta(net.parameters())
-    net.train()
-    counter = 0
 
-    for i in range(100):
+    for i in range(50):
+        print('Epoch:', i)
+        net.train()
+
         for i, (vectors, targets) in enumerate(train_loader):
             optimizer.zero_grad()
             logits = net(vectors)
@@ -53,10 +71,8 @@ def train(train_loader, validation_loader, net):
             loss.backward()
             optimizer.step()
 
-            corrects = (torch.max(logits, 1)[1].view(targets.size()).data == targets.data).sum()
-            accuracy = 100.0 * corrects/batch_size
-
-        print(accuracy)
+        validate(validation_loader, net)
+        torch.save(model.state_dict(), params_file)
 
 
 def collate(items):
@@ -97,7 +113,8 @@ def main():
                               collate_fn=collate)
     validation_loader = DataLoader(data,
                                    batch_size=len(validation_indices),
-                                   sampler=validation_sampler)
+                                   sampler=validation_sampler,
+                                   collate_fn=collate)
     print("Data got.")
 
     net = TimonNet(dimensions)
