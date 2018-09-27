@@ -44,22 +44,30 @@ def get_dataset():
 
 def validate(validation_loader, net):
     net.eval()
-
-    for vectors, targets in validation_loader:
+    avg_loss = 0
+    avg_accuracy = 0
+    
+    for i, (vectors, targets) in enumerate(validation_loader):
         logits = net(vectors)
         loss = F.cross_entropy(logits, targets)
-
-    corrects = (torch.max(logits, 1)[1].view(targets.size()).data == targets.data).sum()
-    accuracy = 100.0 * corrects / len(vectors)
-
+        corrects = (torch.max(logits, 1)[1].view(targets.size()).data == targets.data).sum()
+        accuracy = 100.0 * corrects / len(vectors)
+        
+        avg_loss += loss.data
+        avg_accuracy += accuracy.data
+    
+    avg_loss /= i
+    avg_accuracy /= i
+    
     print('Validation')
-    print('Loss:', loss[0])
-    print('Accuracy:', accuracy[0])
-
+    print('Loss:', avg_loss)
+    print('Accuracy:', avg_accuracy)
+    
 
 def train(train_loader, validation_loader, net):
     optimizer = Adadelta(net.parameters())
-
+    validate(validation_loader, net)
+    
     for i in range(50):
         print('Epoch:', i)
         net.train()
@@ -72,7 +80,7 @@ def train(train_loader, validation_loader, net):
             optimizer.step()
 
         validate(validation_loader, net)
-        torch.save(model.state_dict(), params_file)
+        torch.save(net.state_dict(), params_file)
 
 
 def collate(items):
@@ -100,7 +108,7 @@ def main():
 
     indices = list(range(len(data)))
     random.shuffle(indices)
-    train_size = int(0.1 * len(data))
+    train_size = int(0.9 * len(data))
     train_indices = indices[:train_size]
     train_sampler = SubsetRandomSampler(train_indices)
 
@@ -112,7 +120,7 @@ def main():
                               sampler=train_sampler,
                               collate_fn=collate)
     validation_loader = DataLoader(data,
-                                   batch_size=len(validation_indices),
+                                   batch_size=batch_size,
                                    sampler=validation_sampler,
                                    collate_fn=collate)
     print("Data got.")
