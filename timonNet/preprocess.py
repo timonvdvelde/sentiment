@@ -6,6 +6,9 @@ path_embed = '../embeddings/'
 file_embed_raw = 'glove.twitter.27B.25d.txt'
 file_embed_json = 'glove.twitter.27B.25d.json'
 
+file_embed_raw = 'glove_vectors_unsup_movies_25d_lowercase_preservelines.txt'
+file_embed_json = 'glove_vectors_unsup_movies_25d_lowercase_preservelines.json'
+
 
 def embed_to_json(file_embed_raw, file_embed_json):
     """
@@ -16,7 +19,10 @@ def embed_to_json(file_embed_raw, file_embed_json):
     with open(file_embed_raw, encoding='utf-8') as file:
         for line in file:
             values = line.split()
-            float_values = [float(val) for val in values[1:]]
+            try:
+                float_values = [float(val) for val in values[1:]]
+            except:
+                continue
             table[values[0]] = float_values
 
     store_json(table, file_embed_json)
