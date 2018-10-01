@@ -1,5 +1,8 @@
 # The data and stuff like that
 aclImdb/
+data/
+embeddings/
+bow/data
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

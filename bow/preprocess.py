@@ -92,7 +92,7 @@ def load_review_vectors(path):
         review_vectors = json.load(file)
 
     reviews = np.zeros((len(review_vectors), len(review_vectors[0][0])))
-    targets = np.zeros(len(review_vectors))
+    targets = np.zeros((len(review_vectors), 2))
 
     for i in range(len(review_vectors)):
         # FIXME vector i == 4499 is emtpy.
@@ -101,8 +101,6 @@ def load_review_vectors(path):
             continue
 
         reviews[i] = review_vectors[i][0]
-        targets[i] = review_vectors[i][1]
+        targets[i][review_vectors[i][1]] = 1
 
     return reviews, targets
-
-
