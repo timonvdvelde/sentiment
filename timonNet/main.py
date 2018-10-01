@@ -22,15 +22,16 @@ path_test_pos = path_test + 'pos/'
 path_test_neg = path_test + 'neg/'
 
 path_embed = '../embeddings/'
-#file_embed_raw = 'glove.twitter.27B.25d.txt'
-#file_embed_json = 'glove.twitter.27B.25d.json'
+file_embed_raw = 'glove.twitter.27B.25d.txt'
+file_embed_json = 'glove.twitter.27B.25d.json'
 
-file_embed_raw = 'glove_vectors_unsup_movies_25d_lowercase_preservelines.txt'
-file_embed_json = 'glove_vectors_unsup_movies_25d_lowercase_preservelines.json'
+#file_embed_raw = 'glove_vectors_unsup_movies_25d_lowercase_preservelines.txt'
+#file_embed_json = 'glove_vectors_unsup_movies_25d_lowercase_preservelines.json'
 
 dimensions = 25
-batch_size = 4
+batch_size = 1
 params_file = 'params'
+collate = None
 
 
 def get_dataset(embeddings, paths, val=False):
@@ -135,7 +136,21 @@ def train(train_loader, validation_loader, net, embeddings):
             test(embeddings, net)
 
 
-def collate(items):
+def collate_v2(items):
+    """
+    Hacking the batching system.
+    """
+    vectors = items[0][0]
+    targets = items[0][1]
+
+    vectors = vectors.unsqueeze(1)
+    target = torch.zeros(1, dtype=torch.long)
+    target[0] = targets[0]
+
+    return vectors, target
+
+
+def collate_v1(items):
     """
     Function for batching items. Takes care of padding where the reviews are of
     unequal length.
@@ -196,6 +211,11 @@ def main():
 
 
 if __name__ == '__main__':
+    if batch_size == 1:
+        collate = collate_v2
+    else:
+        collate = collate_v1
+
     if sys.argv[1] == 'train':
         main()
     elif sys.argv[1] == 'test':

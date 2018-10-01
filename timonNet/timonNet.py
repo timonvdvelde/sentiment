@@ -26,6 +26,14 @@ class TimonNet(nn.Module):
         x2 = F.max_pool1d(x2, x2.size()[2])
         x3 = F.max_pool1d(x3, x3.size()[2])
 
+        x1 = x1.transpose(0, 2)
+        x2 = x2.transpose(0, 2)
+        x3 = x3.transpose(0, 2)
+
+        x1 = F.avg_pool1d(x1, x1.size()[2])
+        x2 = F.avg_pool1d(x2, x2.size()[2])
+        x3 = F.avg_pool1d(x3, x3.size()[2])
+
         x1 = x1.squeeze(2)
         x2 = x2.squeeze(2)
         x3 = x3.squeeze(2)

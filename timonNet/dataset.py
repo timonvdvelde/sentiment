@@ -30,6 +30,7 @@ class ReviewDataset(Dataset):
 
         with open(self.paths[idx], encoding='utf-8') as file:
             for line in file:
+                vectors.append([]) # Batch hack
                 tokens = line.split()
 
                 for token in tokens:
@@ -37,7 +38,16 @@ class ReviewDataset(Dataset):
                     token = token.lower()
 
                     if token in self.embeddings:
-                        vectors.extend(self.embeddings[token])
+                        vectors[-1].extend(self.embeddings[token]) # Batch hack
+
+        # Hacking the batching system. Make each sentence into a batch.
+        maxlength = max([len(vector) for vector in vectors])
+        if maxlength < 125:
+            maxlength = 125
+        for i in range(len(vectors)):
+            padding = maxlength - len(vectors[i])
+            vectors[i].extend(padding * [0.0])
+        # End hack.
 
         vectors = torch.Tensor(vectors)
         label = torch.Tensor([self.labels[idx]])
