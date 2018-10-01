@@ -30,7 +30,7 @@ class ReviewDataset(Dataset):
 
         with open(self.paths[idx], encoding='utf-8') as file:
             for line in file:
-                tokens = line.split(' ')
+                tokens = line.split()
 
                 for token in tokens:
                     # Converts to lowercase.

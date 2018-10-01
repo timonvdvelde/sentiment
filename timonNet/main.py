@@ -11,11 +11,13 @@ from torch.utils.data import DataLoader, SubsetRandomSampler
 import random
 import sys
 
-path_data = '../data/train/'
+#path_data = '../data/train/'
+path_data = '../data/tokenized/train/'
 path_pos = path_data + 'pos/'
 path_neg = path_data + 'neg/'
 
-path_test = '../data/test/'
+#path_test = '../data/test/'
+path_test = '../data/tokenized/test/'
 path_test_pos = path_test + 'pos/'
 path_test_neg = path_test + 'neg/'
 
