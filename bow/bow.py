@@ -3,15 +3,28 @@
 import sys
 from preprocess import *
 
-path_data = '../data/train/'
+path_data = '../data/tokenized/test/'
 path_pos = path_data + 'pos/'
 path_neg = path_data + 'neg/'
 
 path_embed = '../embeddings/'
-file_embed_raw = 'glove.twitter.27B.25d.txt'
-file_embed_json = 'glove.twitter.27B.25d.json'
 
-file_review_vectors = 'review_vectors.json'
+file_embed_raw = 'glove.twitter.27B.200d.txt'
+file_embed_json = 'glove.twitter.27B.200d.json'
+file_review_vectors = 'review_vectors_twitter_200.json'
+
+# file_embed_raw = 'glove.twitter.27B.25d.txt'
+# file_embed_json = 'glove.twitter.27B.25d.json'
+# file_review_vectors = 'review_vectors_twitter_tokenized.json'
+
+## TESTING EMBEDDINGS OH WAIT I DONT NEED THAT
+# file_embed_raw = 'glove.twitter.27B.25d.txt'
+# file_embed_json = 'glove.twitter.27B.25d.json'
+# file_review_vectors = 'review_vectors_movies_test.json'
+
+# file_embed_raw = 'glove_vectors_unsup_movies_25d_lowercase_preservelines.txt'
+# file_embed_json = 'glove_vectors_unsup_movies_25d_lowercase_preservelines.json'
+# file_review_vectors = 'review_vectors_movies_tokenized.json'
 
 
 def preprocess(embed=False):
