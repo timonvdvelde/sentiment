@@ -10,6 +10,7 @@ from torch.optim import Adadelta
 from torch.utils.data import DataLoader, SubsetRandomSampler
 import random
 import sys
+import json
 
 #path_data = '../data/train/'
 path_data = '../data/tokenized/train/'
@@ -24,14 +25,42 @@ path_test_neg = path_test + 'neg/'
 path_embed = '../embeddings/'
 #file_embed_raw = 'glove.twitter.27B.25d.txt'
 #file_embed_json = 'glove.twitter.27B.25d.json'
+#params_file = 'params_twitter_25'
+#log_file = 'log_twitter_25.json'
 
-file_embed_raw = 'glove_vectors_unsup_movies_25d_lowercase_preservelines.txt'
-file_embed_json = 'glove_vectors_unsup_movies_25d_lowercase_preservelines.json'
+file_embed_raw = 'glove.twitter.27B.200d.txt'
+file_embed_json = 'glove.twitter.27B.200d.json'
+params_file = 'params_twitter_200'
+log_file = 'log_twitter_200.json'
+
+#file_embed_raw = 'glove_25d_vectors.txt'
+#file_embed_json = 'glove_25d_vectors.json'
+#params_file = 'params_unsup_25'
+#log_file = 'log_unsup_25.json'
+
+#file_embed_raw = 'glove_200d_vectors.txt'
+#file_embed_json = 'glove_200d_vectors.json'
+#params_file = 'params_unsup_200'
+#log_file = 'log_unsup_200.json'
 
 dimensions = 25
-batch_size = 4
-params_file = 'params'
+batch_size = 50
+#params_file = 'params'
+collate = None
+log = None
 
+
+def logger(key1, key2, val, verbose=True):
+    global log
+    if not log:
+        log = {'validation': {'loss':[], 'accuracy':[]},
+               'training': {'loss':[], 'accuracy':[]},
+               'test': {'loss':[], 'accuracy':[]}}
+    log[key1][key2].append(val)
+    
+    if verbose:
+        print('%s %s: %.3f' % (key1, key2, val))
+    
 
 def get_dataset(embeddings, paths, val=False):
     """
@@ -77,7 +106,7 @@ def get_dataset(embeddings, paths, val=False):
     return data
 
 
-def evaluate(data_loader, net):
+def evaluate(data_loader, net, type, log=True):
     """
     Prints loss and accuracy for a given dataset.
     """
@@ -89,16 +118,21 @@ def evaluate(data_loader, net):
         logits = net(vectors)
         loss = float(F.cross_entropy(logits, targets))
         corrects = float((torch.max(logits, 1)[1].view(targets.size()).data == targets.data).sum())
-        accuracy = 100.0 * corrects / len(vectors)
+        accuracy = 100.0 * corrects / batch_size
         
         avg_loss += loss
         avg_accuracy += accuracy
     
     avg_loss /= i+1
     avg_accuracy /= i+1
-    
-    print('Loss:', avg_loss)
-    print('Accuracy:', avg_accuracy)
+
+    if log:
+        logger(type, 'loss', avg_loss)
+        logger(type, 'accuracy', avg_accuracy)
+    else:
+        print('%s %s: %.3f' % (type, 'loss', avg_loss))
+        print('%s %s: %.3f' % (type, 'accuracy', avg_accuracy))
+
     return avg_accuracy
     
 
@@ -108,34 +142,56 @@ def train(train_loader, validation_loader, net, embeddings):
     loader.
     """
     optimizer = Adadelta(net.parameters())
-    print('Validation')
-    evaluate(validation_loader, net)
+    evaluate(validation_loader, net, 'validation', log=False)
     prev_best_acc = 0
     
-    for i in range(50):
+    for i in range(10):
         print('Epoch:', i)
         net.train()
 
+        avg_loss = 0
+        avg_acc = 0
+        
         for i, (vectors, targets) in enumerate(train_loader):
             optimizer.zero_grad()
             logits = net(vectors)
             loss = F.cross_entropy(logits, targets)
             loss.backward()
             optimizer.step()
+            
+            corrects = float((torch.max(logits, 1)[1].view(targets.size()).data == targets.data).sum())
+            accuracy = 100.0 * corrects / batch_size
+            avg_loss += float(loss)
+            avg_acc += accuracy
+           
+        avg_loss /= i+1
+        avg_acc /= i+1
+        
+        logger('training', 'loss', avg_loss)
+        logger('training', 'accuracy', avg_acc)
 
-        print('Validation')
-        acc = evaluate(validation_loader, net)
+        acc = evaluate(validation_loader, net, 'validation')
         
         if acc > prev_best_acc:
             torch.save(net.state_dict(), params_file)
             prev_best_acc = acc
 
-        if i % 10 == 0:
-            print("Testing")
-            test(embeddings, net)
+
+def collate_v2(items):
+    """
+    Hacking the batching system.
+    """
+    vectors = items[0][0]
+    targets = items[0][1]
+
+    vectors = vectors.unsqueeze(1)
+    target = torch.zeros(1, dtype=torch.long)
+    target[0] = targets[0]
+
+    return vectors, target
 
 
-def collate(items):
+def collate_v1(items):
     """
     Function for batching items. Takes care of padding where the reviews are of
     unequal length.
@@ -158,10 +214,14 @@ def collate(items):
     return batch_data, batch_targ
 
 
-def test(embeddings, net=None):
+def test(embeddings=None, net=None):
     """
     Evaluates network on test data.
     """
+    if not embeddings:
+        print("Loading embeddings.")
+        embeddings = preprocess.load_embed(path_embed + file_embed_json)
+        
     print("Loading test data.")
     data = get_dataset(embeddings, (path_test_pos, path_test_neg), val=False)
     test_loader = DataLoader(data,
@@ -172,9 +232,9 @@ def test(embeddings, net=None):
     if not net:
         net = TimonNet(dimensions)
         net.load_state_dict(torch.load(params_file))
-        evaluate(test_loader, net)
+        evaluate(test_loader, net, 'test')
     else:
-        evaluate(test_loader, net)
+        evaluate(test_loader, net, 'test')
 
 
 def main():
@@ -193,15 +253,22 @@ def main():
 
     net = TimonNet(dimensions)
     train(train_loader, val_loader, net, embeddings)
+    test(embeddings)
+    
+    with open(log_file, 'w') as logfile:
+        json.dump(log, logfile)
 
 
 if __name__ == '__main__':
+    if batch_size == 1:
+        collate = collate_v2
+    else:
+        collate = collate_v1
+
     if sys.argv[1] == 'train':
         main()
     elif sys.argv[1] == 'test':
-        print("Loading embeddings.")
-        embeddings = preprocess.load_embed(path_embed + file_embed_json)
-        test(embeddings)
+        test()
     else:
         print("Wat do?")
 

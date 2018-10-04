@@ -21,17 +21,25 @@ class TimonNet(nn.Module):
         x1 = self.tanh(self.conv1(x))
         x2 = self.tanh(self.conv2(x))
         x3 = self.tanh(self.conv3(x))
-
+        
         x1 = F.max_pool1d(x1, x1.size()[2])
         x2 = F.max_pool1d(x2, x2.size()[2])
         x3 = F.max_pool1d(x3, x3.size()[2])
 
+        # Failed experiment
+        #x1 = x1.transpose(0, 2)
+        #x2 = x2.transpose(0, 2)
+        #x3 = x3.transpose(0, 2)
+        #x1 = F.avg_pool1d(x1, x1.size()[2])
+        #x2 = F.avg_pool1d(x2, x2.size()[2])
+        #x3 = F.avg_pool1d(x3, x3.size()[2])
+        
         x1 = x1.squeeze(2)
         x2 = x2.squeeze(2)
         x3 = x3.squeeze(2)
-
+        
         x = torch.cat([x1, x2, x3], 1)
-
+        
         x = self.dropout(x)
         x = self.linear(x)
         return x

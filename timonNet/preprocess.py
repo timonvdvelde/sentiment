@@ -9,8 +9,14 @@ path_embed = '../embeddings/'
 #file_embed_raw = 'glove.twitter.27B.25d.txt'
 #file_embed_json = 'glove.twitter.27B.25d.json'
 
-file_embed_raw = 'glove_vectors_unsup_movies_25d_lowercase_preservelines.txt'
-file_embed_json = 'glove_vectors_unsup_movies_25d_lowercase_preservelines.json'
+#file_embed_raw = 'glove.twitter.27B.200d.txt'
+#file_embed_json = 'glove.twitter.27B.200d.json'
+
+#file_embed_raw = 'glove_25d_vectors.txt'
+#file_embed_json = 'glove_25d_vectors.json'
+
+file_embed_raw = 'glove_200d_vectors.txt'
+file_embed_json = 'glove_200d_vectors.json'
 
 in_paths = ['../data/train/pos/',
             '../data/train/neg/',
