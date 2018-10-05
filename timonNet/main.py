@@ -28,29 +28,36 @@ path_embed = '../embeddings/'
 #params_file = 'params_twitter_25'
 #log_file = 'log_twitter_25.json'
 
-file_embed_raw = 'glove.twitter.27B.200d.txt'
-file_embed_json = 'glove.twitter.27B.200d.json'
-params_file = 'params_twitter_200'
-log_file = 'log_twitter_200.json'
+#file_embed_raw = 'glove.twitter.27B.200d.txt'
+#file_embed_json = 'glove.twitter.27B.200d.json'
+#params_file = 'params_twitter_200'
+#log_file = 'log_twitter_200.json'
 
 #file_embed_raw = 'glove_25d_vectors.txt'
 #file_embed_json = 'glove_25d_vectors.json'
 #params_file = 'params_unsup_25'
 #log_file = 'log_unsup_25.json'
 
-#file_embed_raw = 'glove_200d_vectors.txt'
-#file_embed_json = 'glove_200d_vectors.json'
+file_embed_raw = 'glove_200d_vectors.txt'
+file_embed_json = 'glove_200d_vectors.json'
 #params_file = 'params_unsup_200'
 #log_file = 'log_unsup_200.json'
 
+params_file = 'params'
+log_file = 'log.txt'
+log = None
+
 dimensions = 25
 batch_size = 50
-#params_file = 'params'
+
+hack = False
 collate = None
-log = None
 
 
 def logger(key1, key2, val, verbose=True):
+    """
+    Logs accuracy or loss to a JSON file. Can also print to screen.
+    """
     global log
     if not log:
         log = {'validation': {'loss':[], 'accuracy':[]},
@@ -113,7 +120,7 @@ def evaluate(data_loader, net, type, log=True):
     net.eval()
     avg_loss = 0
     avg_accuracy = 0
-    
+   
     for i, (vectors, targets) in enumerate(data_loader):
         logits = net(vectors)
         loss = float(F.cross_entropy(logits, targets))
@@ -122,7 +129,7 @@ def evaluate(data_loader, net, type, log=True):
         
         avg_loss += loss
         avg_accuracy += accuracy
-    
+  
     avg_loss /= i+1
     avg_accuracy /= i+1
 
@@ -260,7 +267,7 @@ def main():
 
 
 if __name__ == '__main__':
-    if batch_size == 1:
+    if hack:
         collate = collate_v2
     else:
         collate = collate_v1
