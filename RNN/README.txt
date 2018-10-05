@@ -17,11 +17,6 @@ the pickles map is needed in order to dump intermediate results.
 To run the code, please open the TRAIN.ipynb 
 To create plots, please open the PLOTS.ipynb
 
-
-## Contact
-For question about the code or running the code, please contact
-jornranzijn@gmail.c*m
-
 ## Dependencies:
 - pytorch 0.4.1
 - pyhon 3.6 or higher
