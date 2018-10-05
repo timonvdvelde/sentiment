@@ -3,10 +3,12 @@ import torch.nn as nn
 import copy
 
 class MLPNet(nn.Module):
-    def __init__(self, n_input, n_hidden, n_output):
+    def __init__(self, n_input, n_hidden, n_output, name="test"):
         """
         A pytorch nn model
         """
+        self.nam = name
+
         super(MLPNet, self).__init__()
         self.n_layers = copy.copy(n_hidden)
         self.n_layers.insert(0, n_input)
@@ -29,4 +31,4 @@ class MLPNet(nn.Module):
         return x
 
     def name(self):
-        return "jemoeder"
+        return self.nam

@@ -13,19 +13,44 @@ file_embed_raw = 'glove.twitter.27B.200d.txt'
 file_embed_json = 'glove.twitter.27B.200d.json'
 file_review_vectors = 'review_vectors_twitter_200.json'
 
-# file_embed_raw = 'glove.twitter.27B.25d.txt'
-# file_embed_json = 'glove.twitter.27B.25d.json'
-# file_review_vectors = 'review_vectors_twitter_tokenized.json'
+def get_paths(argv):
+    if not len(argv) == 4:
+        return False
+    global path_pos
+    global path_neg
+    global file_embed_raw
+    global file_embed_json
+    global file_review_vectors
 
-## TESTING EMBEDDINGS OH WAIT I DONT NEED THAT
-# file_embed_raw = 'glove.twitter.27B.25d.txt'
-# file_embed_json = 'glove.twitter.27B.25d.json'
-# file_review_vectors = 'review_vectors_movies_test.json'
+    if argv[3] == "test":
+        path_data = '../data/tokenized/test/'
+    elif argv[3] == "train":
+        path_data = '../data/tokenized/train/'
+    else:
+        return False
+    path_pos = path_data + 'pos/'
+    path_neg = path_data + 'neg/'
 
-# file_embed_raw = 'glove_vectors_unsup_movies_25d_lowercase_preservelines.txt'
-# file_embed_json = 'glove_vectors_unsup_movies_25d_lowercase_preservelines.json'
-# file_review_vectors = 'review_vectors_movies_tokenized.json'
+    if argv[2] == "t25":
+        file_embed_raw = 'glove.twitter.27B.25d.txt'
+        file_embed_json = 'glove.twitter.27B.25d.json'
+        file_review_vectors = '{}_vectors_twitter_25.json'.format(argv[3])
+    elif argv[2] == "t200":
+        file_embed_raw = 'glove.twitter.27B.200d.txt'
+        file_embed_json = 'glove.twitter.27B.200d.json'
+        file_review_vectors = '{}_vectors_twitter_200.json'.format(argv[3])
+    elif argv[2] == "m25":
+        file_embed_raw = "glove_25d_vectors.txt"
+        file_embed_json = "glove_25d_vectors.json"
+        file_review_vectors = '{}_vectors_movies_25.json'.format(argv[3])
+    elif argv[2] == "m200":
+        file_embed_raw = "glove_200d_vectors.txt"
+        file_embed_json = "glove_200d_vectors.json"
+        file_review_vectors = '{}_vectors_movies_200.json'.format(argv[3])
+    else:
+        return False
 
+    return True
 
 def preprocess(embed=False):
     """
@@ -54,11 +79,15 @@ def preprocess(embed=False):
 
 
 if __name__ == '__main__':
-    if sys.argv[1] == '0':
-        preprocess(embed=True)
-    elif sys.argv[1] == '1':
-        preprocess(embed=False)
-    elif sys.argv[1] == '2':
-        reviews, targets = load_review_vectors(file_review_vectors)
+    if get_paths(sys.argv) == False:
+        print("Run as: python bow.py [0/1/2] [t25/t200/m25/m200] [train/test]")
+        print("If first time the first command line argument should be 0")
     else:
-        print('Specify what to do')
+        if sys.argv[1] == '0':
+            preprocess(embed=True)
+        elif sys.argv[1] == '1':
+            preprocess(embed=False)
+        elif sys.argv[1] == '2':
+            reviews, targets = load_review_vectors(file_review_vectors)
+        else:
+            print('Specify what to do')

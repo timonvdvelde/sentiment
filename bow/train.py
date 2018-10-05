@@ -13,6 +13,13 @@ import model as md
 import preprocess as pre
 from dataset import BowDataset
 
+# Change parameters here
+embedding_size = 25
+hidden_layers = [100]
+classes = 2
+num_epochs = 10
+embedding_type = "twitter"
+
 def evaluate(data_loader, net):
     """
     Prints loss and accuracy for a given dataset.
@@ -31,7 +38,6 @@ def evaluate(data_loader, net):
         loss += criterion(prediction, y.max(1)[0])
 
         accuracy += sum(prediction.max(1)[1] == y.max(1)[0]).float()/len(x)
-        print(accuracy, len(x))
 
     loss /= i+1
     accuracy /= i+1
@@ -44,15 +50,19 @@ def test(net=None):
     """
     Evaluates network on test data.
     """
-    file_review_vectors = 'review_vectors_movies_test.json'
+    file_review_vectors = 'test_vectors_{}_{}.json'.format(embedding_type,
+                                                           embedding_size)
     test_data = BowDataset(file_review_vectors)
     test_loader = DataLoader(test_data,
                               batch_size=64,
                               shuffle=True)
 
     if not net:
-        net = md.MLPNet(25, [10000], 2)
-        net.load_state_dict(torch.load("jemoeder"))
+        net = md.MLPNet(embedding_size, hidden_layers, classes)
+        net.load_state_dict(torch.load("{}_{}_{}_{}".format(embedding_type,
+                                                            embedding_size,
+                                                            hidden_layers,
+                                                            classes)))
         evaluate(test_loader, net)
     else:
         evaluate(test_loader, net)
@@ -61,7 +71,11 @@ def train(train_loader, v_dim, hidden_layers, classes,
           learning_rate, moment, use_cuda, num_epochs):
     model = md.MLPNet(n_input=v_dim,
                       n_hidden=hidden_layers,
-                      n_output=classes)
+                      n_output=classes,
+                      name="{}_{}_{}_{}".format(embedding_type,
+                                                embedding_size,
+                                                hidden_layers,
+                                                classes))
 
     if use_cuda:
         model = model.cuda()
@@ -83,19 +97,7 @@ def train(train_loader, v_dim, hidden_layers, classes,
             optimizer.step()
 
             accuracy += sum(prediction.max(1)[1] == y.max(1)[0]).long()
-            # print(i, accuracy)
-            # print(i, i*64, x.shape, y.shape)
 
-        # # test for accuracy
-        # accuracy = 0
-        # total = 1000
-        # for i_a in np.random.randint(0, np.shape(inputs)[0], size=total):
-        #     x_a = torch.from_numpy(inputs[i_a]).float()
-        #     y_a = torch.from_numpy(targets[i_a]).long().reshape(1,2)
-        #
-        #     prediction_a = model.forward(x_a)
-        #     if prediction_a.max(1)[1] == y_a.max(1)[1]:
-        #         accuracy += 1
         print("the accuracy is", loss, accuracy.float()/25000.0)
     torch.save(model.state_dict(), model.name())
 
@@ -103,20 +105,21 @@ def train(train_loader, v_dim, hidden_layers, classes,
 def main():
 
     # Loading data
-    file_review_vectors = 'review_vectors_movies_tokenized.json'
+    file_review_vectors = 'train_vectors_{}_{}.json'.format(embedding_type,
+                                                            embedding_size)
     train_data = BowDataset(file_review_vectors)
     train_loader = DataLoader(train_data,
                               batch_size=64,
                               shuffle=True)
 
     train(train_loader,
-          v_dim = 25,
-          hidden_layers = [100],
-          classes = 2,
+          v_dim = embedding_size,
+          hidden_layers = hidden_layers,
+          classes = classes,
           learning_rate = 0.01,
           moment = 0.9,
           use_cuda = False,
-          num_epochs = 10)
+          num_epochs = num_epochs)
 
 if __name__ == '__main__':
     if sys.argv[1] == 'train':

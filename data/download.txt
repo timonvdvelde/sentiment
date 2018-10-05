@@ -1,2 +1,5 @@
+The original dataset:
 http://ai.stanford.edu/~amaas/data/sentiment/
 
+Tokenized with the stanford tokenizer, as used in the research:
+https://drive.google.com/open?id=1fliQSAIhSEUAhV2b1y53bw-O-GI6JSU-

@@ -15,8 +15,3 @@ class BowDataset(data.Dataset):
 
     def __getitem__(self, idx):
         return self.inputs[idx], self.targets[idx]
-
-class BigBowDataset(data.Dataset):
-
-    def __init(self.path):
-        self.path = path

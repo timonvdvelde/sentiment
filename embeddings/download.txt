@@ -1,2 +1,6 @@
+The twitter embeddings were downloaded from kaggle:
 https://www.kaggle.com/jdpaletto/glove-global-vectors-for-word-representation/version/1#glove.twitter.27B.25d.txt
 
+The embeddings trained on the IMDB dataset:
+https://drive.google.com/open?id=1cOPplvfQOI9Obg5x6SjXiU0r7zAAgDq_
+https://drive.google.com/open?id=1iS9PvKAw9FO2pptushoPBjtKKX9hqOwr
