@@ -20,7 +20,7 @@ To create plots, please open the PLOTS.ipynb
 
 ## Contact
 For question about the code or running the code, please contact
-jornranzijn@gmail.com
+jornranzijn@gmail.c*m
 
 ## Dependencies:
 - pytorch 0.4.1
